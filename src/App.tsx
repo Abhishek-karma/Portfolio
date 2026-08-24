@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import MarqueeSection from './components/Marquee';
@@ -47,6 +48,7 @@ export default function App() {
     <>
       <div className="cursor-glow" ref={cursorRef} />
       <Navbar />
+      <Analytics />
       <main className="bg-bg">
         <Hero />
         <MarqueeSection />
