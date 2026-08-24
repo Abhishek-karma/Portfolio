@@ -1,23 +1,24 @@
 import { useEffect, useRef } from 'react';
+import { Server, Palette, Database, Rocket } from 'lucide-react';
 
 const categories = [
   {
-    icon: '⚙️', color: 'bg-[#e8f0fe]',
+    Icon: Server, color: 'bg-[#e8f0fe]', iconColor: 'text-[#1a73e8]',
     title: 'Backend & Distributed Systems', sub: 'Event-driven architecture',
     skills: ['C# .NET 6+','CQRS / MediatR','Azure Service Bus','Azure Functions','SignalR','RESTful APIs','Node.js / Express','Microservices'],
   },
   {
-    icon: '🎨', color: 'bg-[#fce8d5]',
+    Icon: Palette, color: 'bg-[#fce8d5]', iconColor: 'text-accent',
     title: 'Frontend & Reactive UI', sub: 'Component-driven interfaces',
     skills: ['Angular 15+','React','RxJS','TypeScript','DevExtreme','PrimeNG','Tailwind CSS','HTML5 / CSS3'],
   },
   {
-    icon: '🗃️', color: 'bg-[#e6f4ea]',
+    Icon: Database, color: 'bg-[#e6f4ea]', iconColor: 'text-ok',
     title: 'Data & Infrastructure', sub: 'Storage, cache & security',
     skills: ['PostgreSQL','Redis Cache','EF Core / Dapper','MongoDB','Azure Key Vault','SQL Optimization'],
   },
   {
-    icon: '🚀', color: 'bg-[#f3e8ff]',
+    Icon: Rocket, color: 'bg-[#f3e8ff]', iconColor: 'text-[#7c3aed]',
     title: 'DevOps & Tooling', sub: 'Ship with confidence',
     skills: ['Azure DevOps','CI/CD Pipelines','Git / GitHub','SendGrid API','Postman'],
   },
@@ -60,8 +61,8 @@ export default function Skills() {
                        hover:border-accent hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] hover:-translate-y-1"
             style={{ transitionDelay: `${i * 0.1}s` }}>
             <div className="flex items-center gap-3.5 mb-6">
-              <div className={`w-11 h-11 rounded-[14px] ${cat.color} flex items-center justify-center text-lg`}>
-                {cat.icon}
+              <div className={`w-11 h-11 rounded-[14px] ${cat.color} ${cat.iconColor} flex items-center justify-center`}>
+                <cat.Icon size={20} strokeWidth={1.9} />
               </div>
               <div>
                 <div className="text-[17px] font-semibold text-ink">{cat.title}</div>

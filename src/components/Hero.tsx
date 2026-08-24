@@ -1,17 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
+import { Activity, Boxes, Gauge } from 'lucide-react';
 
 function useCounter(target: number, duration = 1400, start = false) {
   const [count, setCount] = useState(0);
   useEffect(() => {
     if (!start) return;
+    let raf = 0;
     let t0: number | null = null;
     const step = (ts: number) => {
-      if (!t0) t0 = ts;
+      if (t0 === null) t0 = ts;
       const p = Math.min((ts - t0) / duration, 1);
       setCount(Math.floor(p * target));
-      if (p < 1) requestAnimationFrame(step);
+      if (p < 1) raf = requestAnimationFrame(step);
     };
-    requestAnimationFrame(step);
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
   }, [start, target, duration]);
   return count;
 }
@@ -133,14 +136,14 @@ export default function Hero() {
         {/* Card 1 — System Load */}
         <div className="floating-card">
           <div className="flex items-center gap-2.5 mb-4">
-            <div className="w-9 h-9 rounded-lg bg-[#e8f0fe] flex items-center justify-center text-[#1a73e8] text-lg">⚡</div>
+            <div className="w-9 h-9 rounded-lg bg-[#e8f0fe] flex items-center justify-center text-[#1a73e8]"><Activity size={18} strokeWidth={2} /></div>
             <div>
               <div className="text-[13px] font-semibold text-ink">System Load</div>
               <div className="text-[11px] text-muted font-mono">Real-time monitoring</div>
             </div>
           </div>
           <div className="text-[28px] font-bold text-ink mb-1">
-            {started ? `${(uptime / 10).toFixed(1)}%` : '0%'}
+            {(uptime / 10).toFixed(1)}%
           </div>
           <div className="text-[12px] text-muted mb-3">Uptime across all services</div>
           <div className="flex items-end gap-1 h-10">
@@ -156,7 +159,7 @@ export default function Hero() {
         {/* Card 2 — Active Modules */}
         <div className="floating-card">
           <div className="flex items-center gap-2.5 mb-4">
-            <div className="w-9 h-9 rounded-lg bg-[#fce8d5] flex items-center justify-center text-accent text-lg">🔧</div>
+            <div className="w-9 h-9 rounded-lg bg-[#fce8d5] flex items-center justify-center text-accent"><Boxes size={18} strokeWidth={2} /></div>
             <div>
               <div className="text-[13px] font-semibold text-ink">Active Modules</div>
               <div className="text-[11px] text-muted font-mono">Enterprise codebase</div>
@@ -177,7 +180,7 @@ export default function Hero() {
         {/* Card 3 — Performance */}
         <div className="floating-card">
           <div className="flex items-center gap-2.5 mb-4">
-            <div className="w-9 h-9 rounded-lg bg-[#e6f4ea] flex items-center justify-center text-ok text-lg">📊</div>
+            <div className="w-9 h-9 rounded-lg bg-[#e6f4ea] flex items-center justify-center text-ok"><Gauge size={18} strokeWidth={2} /></div>
             <div>
               <div className="text-[13px] font-semibold text-ink">Performance</div>
               <div className="text-[11px] text-muted font-mono">Cache hit ratio</div>

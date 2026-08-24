@@ -1,4 +1,14 @@
 import { useEffect, useRef } from 'react';
+import {
+  Monitor, Braces, Share2, Cpu, FileText, Lock, Layers,
+  Database, Clock, Zap, Radar, Gauge, Box, type LucideIcon,
+} from 'lucide-react';
+
+const nodeIcons: Record<string, LucideIcon> = {
+  Client: Monitor, API: Braces, Bus: Share2, Worker: Cpu,
+  Claim: FileText, Vault: Lock, Cache: Layers, DB: Database,
+  Cron: Clock, Func: Zap, Probe: Radar, Dash: Gauge,
+};
 
 const projects = [
   {
@@ -68,14 +78,16 @@ export default function Projects() {
                             border-b border-border flex items-center justify-center px-4">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(194,94,0,0.07),transparent_60%)]" />
               <div className="relative z-10 flex items-center gap-2">
-                {proj.nodes.map((node, ni) => (
+                {proj.nodes.map((node, ni) => {
+                  const NodeIcon = nodeIcons[node] ?? Box;
+                  return (
                   <div key={ni} className="flex items-center gap-2">
                     <div className={`arch-node w-12 h-12 rounded-[14px] border-[1.5px] flex flex-col
-                                    items-center justify-center text-[9px] font-mono gap-0.5 shadow-sm
+                                    items-center justify-center text-[9px] font-mono gap-1 shadow-sm
                                     ${ni === 1
                                       ? 'border-accent text-accent bg-accent-lt'
                                       : 'border-border text-muted bg-surface'}`}>
-                      <div className="w-4 h-4 rounded bg-current opacity-20" />
+                      <NodeIcon size={16} strokeWidth={1.9} />
                       {node}
                     </div>
                     {ni < proj.nodes.length - 1 && (
@@ -83,7 +95,8 @@ export default function Projects() {
                                       group-hover:bg-accent transition-colors duration-300" />
                     )}
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
@@ -91,14 +104,11 @@ export default function Projects() {
             <div className="p-7">
               <h3 className="text-[18px] font-semibold text-ink mb-2">{proj.title}</h3>
               <p className="text-[14px] text-ink2 leading-relaxed mb-5">{proj.desc}</p>
-              <div className="flex justify-between items-center">
-                <div className="flex flex-wrap gap-1.5">
-                  {proj.tags.map(t => (
-                    <span key={t} className="px-2.5 py-1 bg-warm border border-border-lt rounded-md
-                                             text-[10px] font-mono text-muted">{t}</span>
-                  ))}
-                </div>
-                <span className="text-[13px] font-semibold text-accent">View →</span>
+              <div className="flex flex-wrap gap-1.5">
+                {proj.tags.map(t => (
+                  <span key={t} className="px-2.5 py-1 bg-warm border border-border-lt rounded-md
+                                           text-[10px] font-mono text-muted">{t}</span>
+                ))}
               </div>
             </div>
           </div>

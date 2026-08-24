@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { Menu, X, Download } from 'lucide-react';
+import { GithubIcon, LinkedinIcon } from './ui/BrandIcons';
 
 const navLinks = [
   { name: 'About', href: '#about' },
@@ -35,7 +37,7 @@ export default function Navbar() {
       <div className="navbar-inner">
         <a href="#about" className="nav-logo" onClick={(e) => handleClick(e, '#about')}>
           <div className="nav-logo-orb">AV</div>
-          <span>abhishek.vishwakarma</span>
+          <span>Abhishek Vishwakarma</span>
         </a>
 
         <nav>
@@ -51,20 +53,20 @@ export default function Navbar() {
         </nav>
 
         <div className="nav-actions">
-          <a href="https://github.com/Abhishek-karma" target="_blank" rel="noopener noreferrer" className="nav-social">gh</a>
-          <a href="https://linkedin.com/in/AbhishekVishwakarma" target="_blank" rel="noopener noreferrer" className="nav-social">in</a>
-          <a href="/resume.pdf" download className="nav-resume">Resume ↓</a>
+          <a href="https://github.com/Abhishek-karma" target="_blank" rel="noopener noreferrer" className="nav-social inline-flex items-center justify-center" aria-label="GitHub"><GithubIcon size={18} /></a>
+          <a href="https://linkedin.com/in/AbhishekVishwakarma" target="_blank" rel="noopener noreferrer" className="nav-social inline-flex items-center justify-center" aria-label="LinkedIn"><LinkedinIcon size={18} /></a>
+          <a href="/resume.pdf" download className="nav-resume inline-flex items-center gap-1.5">Resume <Download size={14} /></a>
         </div>
 
         <button className="nav-mobile-toggle" onClick={() => setMobileOpen(true)} aria-label="Open menu">
-          ☰
+          <Menu size={22} />
         </button>
       </div>
 
       {mobileOpen && (
         <div className="mobile-overlay" onClick={() => setMobileOpen(false)}>
           <div className="mobile-menu" onClick={e => e.stopPropagation()}>
-            <button className="mobile-close" onClick={() => setMobileOpen(false)}>✕</button>
+            <button className="mobile-close" onClick={() => setMobileOpen(false)} aria-label="Close menu"><X size={20} /></button>
             {navLinks.map(link => (
               <a key={link.name} href={link.href} className="mobile-link" onClick={(e) => handleClick(e, link.href)}>
                 {link.name}
@@ -73,8 +75,8 @@ export default function Navbar() {
             <div className="mobile-actions">
               <a href="/resume.pdf" download className="nav-resume" style={{ width: '100%', textAlign: 'center', display: 'block' }}>Download Resume</a>
               <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 12 }}>
-                <a href="https://github.com/Abhishek-karma" target="_blank" rel="noopener noreferrer" className="nav-social">gh</a>
-                <a href="https://linkedin.com/in/AbhishekVishwakarma" target="_blank" rel="noopener noreferrer" className="nav-social">in</a>
+                <a href="https://github.com/Abhishek-karma" target="_blank" rel="noopener noreferrer" className="nav-social inline-flex items-center justify-center" aria-label="GitHub"><GithubIcon size={20} /></a>
+                <a href="https://linkedin.com/in/AbhishekVishwakarma" target="_blank" rel="noopener noreferrer" className="nav-social inline-flex items-center justify-center" aria-label="LinkedIn"><LinkedinIcon size={20} /></a>
               </div>
             </div>
           </div>

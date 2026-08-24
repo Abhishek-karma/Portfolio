@@ -1,3 +1,6 @@
+import { Mail, Phone, Download } from 'lucide-react';
+import { GithubIcon, LinkedinIcon } from './ui/BrandIcons';
+
 export default function Contact() {
   return (
     <>
@@ -26,38 +29,38 @@ export default function Contact() {
                          text-sm font-semibold no-underline transition-all duration-300
                          hover:bg-accent hover:text-white hover:-translate-y-0.5
                          hover:shadow-[0_8px_24px_rgba(194,94,0,0.3)]">
-              ✉ abhikarma.work@gmail.com
+              <Mail size={17} strokeWidth={1.9} className="shrink-0" /> abhikarma.work@gmail.com
             </a>
             <a href="tel:+919967326518"
               className="flex items-center gap-2.5 px-7 py-4 rounded-[14px] border-[1.5px]
                          border-bg/15 text-bg text-sm font-semibold no-underline
                          transition-all duration-300 hover:bg-accent hover:border-accent hover:-translate-y-0.5">
-              ✆ +91 99673 26518
+              <Phone size={17} strokeWidth={1.9} className="shrink-0" /> +91 99673 26518
             </a>
             <a href="/resume.pdf" download
               className="flex items-center gap-2.5 px-7 py-4 rounded-[14px] border-[1.5px]
                          border-bg/15 text-bg text-sm font-semibold no-underline
                          transition-all duration-300 hover:bg-accent hover:border-accent hover:-translate-y-0.5">
-              ↓ Download Resume
+              <Download size={17} strokeWidth={1.9} className="shrink-0" /> Download Resume
             </a>
             <a href="https://linkedin.com/in/abhishek-vishwakarma" target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-2.5 px-7 py-4 rounded-[14px] border-[1.5px]
                          border-bg/15 text-bg text-sm font-semibold no-underline
                          transition-all duration-300 hover:bg-accent hover:border-accent hover:-translate-y-0.5">
-              in LinkedIn
+              <LinkedinIcon size={17} className="shrink-0" /> LinkedIn
             </a>
             <a href="https://github.com/Abhishek-karma" target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-2.5 px-7 py-4 rounded-[14px] border-[1.5px]
                          border-bg/15 text-bg text-sm font-semibold no-underline
                          transition-all duration-300 hover:bg-accent hover:border-accent hover:-translate-y-0.5">
-              ⌥ GitHub
+              <GithubIcon size={17} className="shrink-0" /> GitHub
             </a>
           </div>
         </div>
       </section>
 
       <footer className="py-8 px-6 text-center font-mono text-[12px] text-muted border-t border-border">
-        <span className="text-accent">&gt;</span> designed &amp; built by abhishek vishwakarma{' '}
+        <span className="text-accent">&gt;</span> Designed &amp; built by Abhishek Vishwakarma{' '}
         <span className="text-muted/50">// 2025</span>
       </footer>
     </>

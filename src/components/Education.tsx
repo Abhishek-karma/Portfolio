@@ -1,20 +1,21 @@
 import { useState, useEffect, useRef } from 'react';
+import { GraduationCap, Award, X, ExternalLink, Check, type LucideIcon } from 'lucide-react';
 
 interface Cert {
-  badge: string; org: string; title: string; year: string; delay: string;
+  Icon: LucideIcon; org: string; title: string; year: string; delay: string;
   type: string; desc: string; skills: string[]; link?: string;
 }
 
 const certs: Cert[] = [
   {
-    badge: '🎓', org: 'Patkar Varde College, Mumbai University',
+    Icon: GraduationCap, org: 'Patkar Varde College, Mumbai University',
     title: 'B.Sc. in Information Technology', year: 'Class of 2024 — CGPA 9.02',
     delay: '0s', type: 'Academic Degree',
     desc: 'Three-year degree program in Information Technology with specialization in Software Engineering, Database Systems, Computer Networks, and Object-Oriented Architecture.',
     skills: ['Software Engineering','Database Systems','Computer Networks','Object-Oriented Design','CGPA 9.02 / 10.0'],
   },
   {
-    badge: '📜', org: 'Unified Mentor',
+    Icon: Award, org: 'Unified Mentor',
     title: 'MERN Stack Development Certification', year: 'Verified Credential — 2025',
     delay: '0.05s', type: 'Verified Credential',
     desc: 'Full-stack engineering certification covering MongoDB schema design, Express REST APIs, React state management, and Node.js microservice architecture.',
@@ -22,7 +23,7 @@ const certs: Cert[] = [
     link: 'https://github.com/Abhishek-karma',
   },
   {
-    badge: '📜', org: 'Citi / Forage',
+    Icon: Award, org: 'Citi / Forage',
     title: 'Citi ICG Technology Software Development', year: 'Virtual Simulation — 2025',
     delay: '0.1s', type: 'Virtual Internship Simulation',
     desc: 'Enterprise virtual internship analyzing capital market software systems, API architecture design, and financial platform refactoring with performance optimization.',
@@ -30,7 +31,7 @@ const certs: Cert[] = [
     link: 'https://www.theforage.com/',
   },
   {
-    badge: '📜', org: 'Tata / Forage',
+    Icon: Award, org: 'Tata / Forage',
     title: 'Tata Cybersecurity Analyst', year: 'Virtual Simulation — 2023',
     delay: '0.15s', type: 'Virtual Internship Simulation',
     desc: 'Practical security analyst simulation covering IAM, network vulnerability scanning, threat vector analysis, and enterprise risk mitigation strategies.',
@@ -38,7 +39,7 @@ const certs: Cert[] = [
     link: 'https://www.theforage.com/',
   },
   {
-    badge: '📜', org: 'Automation Certification',
+    Icon: Award, org: 'Automation Certification',
     title: 'Robotic Process Automation (RPA)', year: 'Verified Credential — 2023',
     delay: '0.2s', type: 'Verified Credential',
     desc: 'Automated workflow logic engineering, bot orchestration, software process automation, and enterprise script triggers for enterprise task automation.',
@@ -98,8 +99,8 @@ export default function Education() {
             tabIndex={0}
             onKeyDown={e => e.key === 'Enter' && setSelected(cert)}>
             {/* Badge */}
-            <div className="absolute top-5 right-5 w-8 h-8 rounded-full bg-accent-lt
-                            flex items-center justify-center text-sm">{cert.badge}</div>
+            <div className="absolute top-5 right-5 w-8 h-8 rounded-full bg-accent-lt text-accent
+                            flex items-center justify-center"><cert.Icon size={15} strokeWidth={2} /></div>
             <div className="font-mono text-[11px] text-accent mb-2">{cert.org}</div>
             <div className="text-[15px] font-semibold text-ink mb-2 leading-snug pr-8">{cert.title}</div>
             <div className="font-mono text-[12px] text-muted">{cert.year}</div>
@@ -120,14 +121,14 @@ export default function Education() {
             <button onClick={() => setSelected(null)}
               className="absolute top-5 right-5 w-8 h-8 rounded-full bg-warm border border-border
                          flex items-center justify-center text-ink2 hover:bg-ink hover:text-white
-                         transition-all cursor-pointer text-sm">
-              ✕
+                         transition-all cursor-pointer" aria-label="Close">
+              <X size={16} />
             </button>
 
             {/* Header */}
             <div className="flex items-center gap-3 mb-5">
-              <div className="w-12 h-12 rounded-[14px] bg-accent-lt flex items-center justify-center text-[22px]">
-                {selected.badge}
+              <div className="w-12 h-12 rounded-[14px] bg-accent-lt text-accent flex items-center justify-center">
+                <selected.Icon size={24} strokeWidth={1.9} />
               </div>
               <div>
                 <div className="font-mono text-[11px] text-accent uppercase tracking-wide mb-1">
@@ -148,7 +149,7 @@ export default function Education() {
               {selected.skills.map(s => (
                 <span key={s} className="flex items-center gap-1.5 px-3 py-1.5 bg-warm border border-border
                                          rounded-full text-[12px] font-mono text-ink2">
-                  <span className="text-ok text-[11px]">✓</span> {s}
+                  <Check size={13} strokeWidth={2.5} className="text-ok shrink-0" /> {s}
                 </span>
               ))}
             </div>
@@ -158,7 +159,7 @@ export default function Education() {
                 <a href={selected.link} target="_blank" rel="noopener noreferrer"
                   className="px-6 py-3 rounded-[14px] bg-ink text-bg text-[13px] font-semibold
                              no-underline flex items-center gap-2 hover:bg-accent transition-colors">
-                  ↗ Verify Credential
+                  <ExternalLink size={15} strokeWidth={2} /> Verify Credential
                 </a>
               )}
               <button onClick={() => setSelected(null)}
