@@ -1,70 +1,85 @@
-import { motion } from 'framer-motion';
-import { Server, Layout, Database, Workflow } from 'lucide-react';
-import SectionHeading from './ui/SectionHeading';
+import { useEffect, useRef } from 'react';
 
-const skillCategories = [
+const categories = [
   {
-    title: "Backend Architecture & Cloud",
-    icon: <Server className="w-5 h-5 text-cyan-400" />,
-    skills: ["C#", ".NET 6+", "Azure Services", "Azure Service Bus", "Azure Functions", "CQRS (MediatR)", "SignalR", "RESTful APIs", "Node.js", "Express"]
+    icon: '⚙️', color: 'bg-[#e8f0fe]',
+    title: 'Backend & Distributed Systems', sub: 'Event-driven architecture',
+    skills: ['C# .NET 6+','CQRS / MediatR','Azure Service Bus','Azure Functions','SignalR','RESTful APIs','Node.js / Express','Microservices'],
   },
   {
-    title: "Reactive Frontend & UI",
-    icon: <Layout className="w-5 h-5 text-violet-400" />,
-    skills: ["Angular 15+", "React", "RxJS", "TypeScript", "DevExtreme", "PrimeNG", "Tailwind CSS", "HTML5/CSS3"]
+    icon: '🎨', color: 'bg-[#fce8d5]',
+    title: 'Frontend & Reactive UI', sub: 'Component-driven interfaces',
+    skills: ['Angular 15+','React','RxJS','TypeScript','DevExtreme','PrimeNG','Tailwind CSS','HTML5 / CSS3'],
   },
   {
-    title: "Data Engineering & Caching",
-    icon: <Database className="w-5 h-5 text-cyan-400" />,
-    skills: ["PostgreSQL", "Redis Cache", "Entity Framework Core", "Dapper", "MongoDB", "SQL Query Optimization"]
+    icon: '🗃️', color: 'bg-[#e6f4ea]',
+    title: 'Data & Infrastructure', sub: 'Storage, cache & security',
+    skills: ['PostgreSQL','Redis Cache','EF Core / Dapper','MongoDB','Azure Key Vault','SQL Optimization'],
   },
   {
-    title: "Systems Architecture & DevOps",
-    icon: <Workflow className="w-5 h-5 text-violet-400" />,
-    skills: ["Microservices", "Event-Driven Architecture", "Azure Key Vault", "Git/GitHub", "Azure DevOps", "CI/CD Pipelines", "SendGrid API", "Postman"]
-  }
+    icon: '🚀', color: 'bg-[#f3e8ff]',
+    title: 'DevOps & Tooling', sub: 'Ship with confidence',
+    skills: ['Azure DevOps','CI/CD Pipelines','Git / GitHub','SendGrid API','Postman'],
+  },
 ];
 
 export default function Skills() {
+  const ref = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const d = parseFloat((e.target as HTMLElement).style.transitionDelay || '0') * 1000;
+          setTimeout(() => e.target.classList.add('visible'), d);
+        }
+      });
+    }, { threshold: 0.1 });
+    ref.current?.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
+
   return (
-    <section id="expertise" className="py-24 relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
-      <SectionHeading 
-        number="01"
-        label="Technical Command Center"
-        title="Engineering Capabilities & Stack"
-        subtitle="A highly optimized toolkit spanning full-stack microservices, cloud native infrastructure, and reactive UI architecture."
-      />
+    <section id="skills" ref={ref} className="max-w-[1200px] mx-auto px-6 md:px-12 py-24 md:py-32">
+      <div className="mb-16 reveal">
+        <div className="section-label flex items-center font-mono text-[12px] text-accent uppercase tracking-widest mb-4">
+          Capabilities
+        </div>
+        <h2 className="text-[clamp(32px,4vw,44px)] font-bold tracking-[-0.02em] mb-4 leading-[1.1]">
+          Technical command center
+        </h2>
+        <p className="text-[17px] text-ink2 max-w-[540px] leading-[1.7]">
+          Engineering toolkit spanning full-stack microservices, cloud-native infrastructure, and reactive UI.
+        </p>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
-        {skillCategories.map((category, idx) => (
-          <motion.div
-            key={category.title}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ delay: idx * 0.1 }}
-            className="glass bg-slate-900/40 backdrop-blur-xl border border-white/[0.08] p-6 sm:p-8 rounded-2xl hover:border-cyan-500/40 transition-all duration-300 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] flex flex-col justify-between group hover:-translate-y-1"
-          >
-            <div>
-              <div className="bg-cyan-500/10 p-3 rounded-xl border border-cyan-500/20 w-fit mb-4 group-hover:border-cyan-500/40 transition-colors">
-                {category.icon}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {categories.map((cat, i) => (
+          <div key={cat.title}
+            className="reveal bg-surface border border-border rounded-[28px] p-8
+                       transition-all duration-500 ease-out
+                       hover:border-accent hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] hover:-translate-y-1"
+            style={{ transitionDelay: `${i * 0.1}s` }}>
+            <div className="flex items-center gap-3.5 mb-6">
+              <div className={`w-11 h-11 rounded-[14px] ${cat.color} flex items-center justify-center text-lg`}>
+                {cat.icon}
               </div>
-              <h3 className="text-xl font-bold text-white mb-6 tracking-wide group-hover:text-cyan-300 transition-colors">
-                {category.title}
-              </h3>
+              <div>
+                <div className="text-[17px] font-semibold text-ink">{cat.title}</div>
+                <div className="text-[12px] text-muted font-mono">{cat.sub}</div>
+              </div>
             </div>
-
-            <div className="flex flex-wrap gap-2 mt-auto">
-              {category.skills.map(skill => (
-                <span
-                  key={skill}
-                  className="text-xs font-mono px-3 py-1.5 rounded-md bg-white/[0.04] border border-white/[0.06] text-slate-300 hover:border-cyan-400/40 hover:text-cyan-300 transition-colors"
-                >
-                  {skill}
-                </span>
+            <div className="flex flex-wrap gap-2">
+              {cat.skills.map(skill => (
+                <div key={skill}
+                  className="skill-orb px-3.5 py-1.5 rounded-full text-[13px] font-medium
+                             border-[1.5px] border-border text-ink2
+                             hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(194,94,0,0.2)]
+                             transition-all duration-300">
+                  <span>{skill}</span>
+                </div>
               ))}
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
     </section>

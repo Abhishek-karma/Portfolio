@@ -1,198 +1,169 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronDown, MapPin, Building2 } from 'lucide-react';
-import SectionHeading from './ui/SectionHeading';
+import { useEffect, useRef } from 'react';
 
-interface ExperienceRole {
-  id: number;
-  company: string;
-  role: string;
-  date: string;
-  location: string;
-  impactMetric: string;
-  summary: string;
-  achievements: string[];
-  tags: string[];
-}
-
-const experiencesData: ExperienceRole[] = [
+const projects = [
   {
-    id: 1,
-    company: 'PixelMind Technology',
-    role: 'Junior Software Developer',
-    date: 'Sep 2025 – Present',
-    location: 'Mumbai, India',
-    impactMetric: '7 Enterprise Modules Engineered',
-    summary: 'Architecting event-driven notification microservices, real-time engines, and HIPAA-compliant healthcare claim correction tools.',
-    achievements: [
-      'Event-Driven Notification Microservice: Architected using CQRS (MediatR), Azure Service Bus, and SendGrid API for multi-tenant clients.',
-      'Real-Time Notification Engine: Integrated Azure SignalR & WebSockets with RxJS state management and offline recovery.',
-      'WYSIWYG Email Template Builder: Built using DevExtreme, Quill.js, and Azure Blob Storage for multi-language versioning.',
-      'Automated Timer Engines: Engineered Azure Timer Functions with exponential backoff & status tracking.',
-      'Healthcare Claim Correction Tool: Engineered validation workflows with Azure Key Vault (PHI security) & Redis caching.',
-      'Network Lifecycle Management: Automated hardware & SSL certificate lifecycle monitoring.',
-      'RBAC & Security: Built dynamic permission matrices and dynamic PostgreSQL column rendering.'
-    ],
-    tags: ['.NET 6+', 'Azure Service Bus', 'Angular 15+', 'PostgreSQL', 'Redis Cache', 'SignalR', 'CQRS']
+    title: 'Distributed Notification Pipeline',
+    desc: 'Architected event-driven notification microservice using CQRS (MediatR), Azure Service Bus, and SendGrid/SignalR for multi-tenant streaming with real-time WebSocket recovery and offline message replay.',
+    pills: ['.NET 6+','CQRS','Azure Bus','SignalR','SendGrid'],
+    delay: '0s',
   },
   {
-    id: 2,
-    company: 'PixelMind Technology',
-    role: 'Software Development Intern',
-    date: 'Mar 2025 – Sep 2025',
-    location: 'Mumbai, India',
-    impactMetric: '.NET & Azure Core Integration',
-    summary: 'Engineered core .NET Core backend microservices integrated with Azure Key Vault, Redis caching, and storage queues.',
-    achievements: [
-      'Core Backend Service Integrations: Integrated Azure Key Vault, Redis Cache, and Storage Queues into production APIs.',
-      'High-Performance Querying: Built scalable API endpoints with Entity Framework Core & Dapper ORM.'
-    ],
-    tags: ['.NET Core', 'Azure Key Vault', 'Redis', 'Entity Framework Core', 'Dapper', 'REST APIs']
+    title: 'Healthcare Claim Validation Engine',
+    desc: 'Engineered HIPAA-compliant claim correction workflow with Azure Key Vault for PHI security, Redis-backed sub-millisecond caching, and PostgreSQL validation pipelines with dynamic RBAC matrices.',
+    pills: ['Key Vault','PostgreSQL','Redis','RBAC'],
+    delay: '0.1s',
   },
   {
-    id: 3,
-    company: 'Unified Mentor',
-    role: 'Full Stack Web Developer Intern',
-    date: 'Jan 2025 – Mar 2025',
-    location: 'Remote',
-    impactMetric: 'MERN Stack API Architecture',
-    summary: 'Developed full-stack web applications with decoupled API architectures using MongoDB, Express, React, and Node.js.',
-    achievements: [
-      'Full Stack App Architecture: Built decoupled MERN stack applications with RESTful APIs.',
-      'Responsive Frontend Engineering: Implemented reactive UI designs and asynchronous state workflows.'
-    ],
-    tags: ['MongoDB', 'Express', 'React', 'Node.js', 'RESTful APIs', 'JavaScript']
-  }
+    title: 'Network & SSL Lifecycle Monitor',
+    desc: 'Automated hardware lifecycle and SSL certificate expiry monitoring using Azure Timer Functions with exponential backoff, pushing real-time metrics to a dynamic Angular 15+ dashboard.',
+    pills: ['Azure Functions','Cron','Angular','SSL Probe'],
+    delay: '0.2s',
+  },
+  {
+    title: 'WYSIWYG Email Template Builder',
+    desc: 'Built a drag-and-drop email template builder using DevExtreme and Quill.js, with Azure Blob Storage for multi-language versioning and real-time preview rendering across devices.',
+    pills: ['DevExtreme','Quill.js','Blob Storage','i18n'],
+    delay: '0.3s',
+  },
 ];
 
 export default function Experience() {
-  const [expandedId, setExpandedId] = useState<number | null>(experiencesData[0].id);
+  const ref = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const d = parseFloat((e.target as HTMLElement).style.transitionDelay || '0') * 1000;
+          setTimeout(() => e.target.classList.add('visible'), d);
+        }
+      });
+    }, { threshold: 0.1 });
+    ref.current?.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
 
   return (
-    <section id="experience" className="py-24 relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
-      <SectionHeading 
-        number="02"
-        label="Career Trajectory"
-        title="Professional Experience & Impact"
-        subtitle="Progressive disclosure timeline showcasing software developer roles, cloud architecture, and enterprise engineering accomplishments."
-      />
+    <section id="experience" ref={ref}
+      className="max-w-[1200px] mx-auto px-6 md:px-12 py-24 md:py-32 bg-warm/30">
 
-      <div className="max-w-4xl mx-auto mt-12 relative">
-        {/* Timeline Gradient Line */}
-        <div className="absolute left-[15px] md:left-[23px] top-4 bottom-4 w-[1px] bg-gradient-to-b from-cyan-500 via-violet-500/40 to-transparent" />
+      {/* Header */}
+      <div className="mb-16 reveal">
+        <div className="section-label flex items-center font-mono text-[12px] text-accent uppercase tracking-widest mb-4">
+          Trajectory
+        </div>
+        <h2 className="text-[clamp(32px,4vw,44px)] font-bold tracking-[-0.02em] mb-4 leading-[1.1]">
+          Where I've shipped
+        </h2>
+        <p className="text-[17px] text-ink2 max-w-[540px] leading-[1.7]">
+          Deep dives into systems I've architected and the foundations I've built across my engineering journey.
+        </p>
+      </div>
 
-        <div className="flex flex-col gap-8">
-          {experiencesData.map((exp, idx) => {
-            const isExpanded = expandedId === exp.id;
+      {/* Featured Card */}
+      <div className="reveal bg-surface border border-border rounded-[28px] overflow-hidden
+                      transition-all duration-500 hover:border-accent hover:shadow-[0_24px_80px_rgba(0,0,0,0.1)] mb-12">
 
-            return (
-              <motion.div
-                key={exp.id}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ delay: idx * 0.1 }}
-                className="relative pl-10 md:pl-16"
-              >
-                {/* Radar Ping Node */}
-                <div className="absolute left-[10px] md:left-[18px] top-7 -translate-x-1/2">
-                  <div className="relative flex h-3.5 w-3.5 rounded-full bg-cyan-400 ring-4 ring-cyan-400/20">
-                    <div className="absolute inset-0 rounded-full bg-cyan-400 animate-ping opacity-75" />
-                  </div>
+        {/* Header row */}
+        <div className="flex flex-wrap justify-between items-start gap-4 p-8 pb-0 md:p-10 md:pb-0">
+          <div>
+            <div className="text-[28px] font-bold tracking-[-0.02em] text-ink mb-1">Junior Software Developer</div>
+            <div className="text-[15px] text-ink2">PixelMind Technology — Mumbai, India</div>
+          </div>
+          <span className="px-4 py-2 bg-accent-lt text-accent font-mono text-[12px] font-medium rounded-full whitespace-nowrap">
+            Sep 2025 – Present
+          </span>
+        </div>
+
+        <p className="px-8 md:px-10 pt-5 text-[16px] text-ink2 leading-[1.7] max-w-[700px]">
+          Leading architecture for enterprise microservices across notification pipelines,
+          healthcare compliance, and infrastructure monitoring. Built 7 production modules
+          serving multi-tenant clients with 99.9% uptime.
+        </p>
+
+        {/* Tags */}
+        <div className="flex flex-wrap gap-2 px-8 md:px-10 pt-5 pb-8">
+          {['.NET 6+','Azure Service Bus','Angular 15+','PostgreSQL','SignalR','CQRS','Redis','Azure Key Vault'].map(t => (
+            <span key={t}
+              className="px-3.5 py-1.5 bg-warm border border-border-lt rounded-full text-[12px]
+                         font-mono text-ink2 transition-all hover:border-accent hover:text-accent hover:bg-accent-lt">
+              {t}
+            </span>
+          ))}
+        </div>
+
+        {/* Project cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 px-8 md:px-10 pb-10">
+          {projects.map(proj => (
+            <div key={proj.title}
+              className="reveal bg-bg border border-border-lt rounded-[20px] p-6
+                         transition-all duration-400 hover:border-accent hover:-translate-y-1
+                         hover:shadow-[0_8px_24px_rgba(194,94,0,0.12)]"
+              style={{ transitionDelay: proj.delay }}>
+              <div className="flex items-center gap-2.5 mb-3">
+                <span className="exp-dot w-2 h-2 rounded-full bg-accent shrink-0" />
+                <span className="text-[15px] font-semibold text-ink">{proj.title}</span>
+              </div>
+              <p className="text-[13px] text-ink2 leading-relaxed mb-3">{proj.desc}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {proj.pills.map(p => (
+                  <span key={p} className="px-2.5 py-1 bg-surface border border-border-lt rounded-md
+                                           text-[10px] font-mono text-muted">{p}</span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Earlier Experience */}
+      <div className="reveal">
+        <div className="font-mono text-[11px] text-muted uppercase tracking-[2px] mb-5">Earlier Experience</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[
+            {
+              role: 'Software Development Intern',
+              company: 'PixelMind Technology — Mumbai',
+              date: 'Mar – Sep 2025',
+              points: [
+                'Engineered core .NET Core backend microservices with Azure Key Vault & Redis caching',
+                'Built RESTful APIs with EF Core & Dapper for high-performance data access',
+                'Reduced database load by 60% through Redis caching strategies',
+              ],
+            },
+            {
+              role: 'Full Stack Web Developer Intern',
+              company: 'Unified Mentor — Remote',
+              date: 'Jan – Mar 2025',
+              points: [
+                'Developed full-stack MERN applications with decoupled API architecture',
+                'Built responsive React frontends with MongoDB schema design',
+                'Earned MERN Stack Development Certification',
+              ],
+            },
+          ].map(exp => (
+            <div key={exp.role}
+              className="earlier-card relative bg-surface border border-border rounded-[20px] p-6 pl-8
+                         transition-all duration-300 hover:border-accent hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
+              <div className="flex justify-between items-start flex-wrap gap-2 mb-2">
+                <div>
+                  <div className="text-[15px] font-semibold text-ink">{exp.role}</div>
+                  <div className="text-[13px] text-ink2 mt-0.5">{exp.company}</div>
                 </div>
-
-                <div 
-                  className={`glass bg-slate-900/40 backdrop-blur-xl border border-white/[0.08] p-6 md:p-8 rounded-2xl transition-all duration-300 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] cursor-pointer ${
-                    isExpanded ? 'border-cyan-500/40 shadow-lg shadow-cyan-500/5' : 'hover:border-white/[0.15]'
-                  }`}
-                  onClick={() => setExpandedId(isExpanded ? null : exp.id)}
-                >
-                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-3">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <span className="text-[10px] font-mono uppercase tracking-widest text-cyan-400 px-2.5 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/20">
-                          {exp.impactMetric}
-                        </span>
-                      </div>
-                      <h3 className="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-100 to-slate-300">
-                        {exp.role}
-                      </h3>
-                      <div className="flex items-center gap-4 text-xs font-mono text-slate-400 mt-1">
-                        <span className="flex items-center gap-1 text-white font-semibold">
-                          <Building2 className="w-3.5 h-3.5 text-cyan-400" />
-                          {exp.company}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <MapPin className="w-3.5 h-3.5 text-violet-400" />
-                          {exp.location}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="shrink-0">
-                      <span className="inline-block text-xs font-mono text-slate-400 bg-white/[0.03] px-3 py-1 rounded-full border border-white/5">
-                        {exp.date}
-                      </span>
-                    </div>
-                  </div>
-
-                  <p className="text-slate-400 text-sm leading-relaxed mb-4">
-                    {exp.summary}
-                  </p>
-
-                  <div className="flex items-center text-xs font-mono text-cyan-400 hover:text-white transition-colors">
-                    <span>{isExpanded ? 'Hide Architectural Details' : 'Inspect Case Study & Bullet Points'}</span>
-                    {isExpanded ? (
-                      <ChevronDown className="w-4 h-4 ml-1" />
-                    ) : (
-                      <ChevronRight className="w-4 h-4 ml-1" />
-                    )}
-                  </div>
-
-                  <AnimatePresence>
-                    {isExpanded && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3, ease: "easeInOut" }}
-                        className="overflow-hidden"
-                      >
-                        <div className="pt-6 mt-6 border-t border-white/[0.06]">
-                          <h4 className="text-xs font-mono uppercase tracking-wider text-cyan-400 font-semibold mb-4">
-                            Key Achievements & System Contributions
-                          </h4>
-                          <ul className="space-y-3">
-                            {exp.achievements.map((achievement, i) => (
-                              <motion.li 
-                                key={i}
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: i * 0.05 }}
-                                className="flex items-start text-slate-300 text-sm leading-relaxed"
-                              >
-                                <ChevronRight className="w-4 h-4 text-cyan-400 mr-2.5 shrink-0 mt-1" />
-                                <span>{achievement}</span>
-                              </motion.li>
-                            ))}
-                          </ul>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  {/* Micro-pills */}
-                  <div className="flex flex-wrap gap-1.5 mt-6 pt-4 border-t border-white/[0.04]">
-                    {exp.tags.map(tag => (
-                      <span key={tag} className="text-xs font-mono px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/[0.06] text-slate-300">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })}
+                <span className="font-mono text-[11px] text-muted bg-warm px-2.5 py-1 rounded-full whitespace-nowrap">
+                  {exp.date}
+                </span>
+              </div>
+              <ul className="mt-3 space-y-1.5">
+                {exp.points.map(pt => (
+                  <li key={pt} className="text-[13px] text-ink2 leading-relaxed pl-4 relative
+                                          before:content-['—'] before:absolute before:left-0
+                                          before:text-muted before:font-mono before:text-[10px]">
+                    {pt}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       </div>
     </section>

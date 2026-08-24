@@ -1,84 +1,61 @@
-import { useEffect } from 'react'
-import Lenis from 'lenis'
-import Navbar from './components/Navbar'
-import Hero from './components/Hero'
-import Skills from './components/Skills'
-import Experience from './components/Experience'
-import Projects from './components/Projects'
-import Education from './components/Education'
-import Contact from './components/Contact'
-import ParticleGrid from './components/3d/ParticleGrid'
+import { useEffect, useRef } from 'react';
+import Navbar from './components/Navbar';
+import Hero from './components/Hero';
+import MarqueeSection from './components/Marquee';
+import Skills from './components/Skills';
+import Experience from './components/Experience';
+import Projects from './components/Projects';
+import Education from './components/Education';
+import Contact from './components/Contact';
 
-function App() {
-  // Initialize Lenis smooth scrolling
+export default function App() {
+  const cursorRef = useRef<HTMLDivElement>(null);
+
+  /* Cursor glow */
   useEffect(() => {
-    const lenis = new Lenis({
-      lerp: 0.1,
-      duration: 1.2,
-      smoothWheel: true,
-    })
+    if (!window.matchMedia('(pointer:fine)').matches) return;
+    const cursor = cursorRef.current;
+    if (!cursor) return;
+    const onMove = (e: MouseEvent) => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top  = e.clientY + 'px';
+    };
+    window.addEventListener('mousemove', onMove);
+    return () => window.removeEventListener('mousemove', onMove);
+  }, []);
 
-    function raf(time: number) {
-      lenis.raf(time)
-      requestAnimationFrame(raf)
-    }
+  /* Global scroll reveal */
+  useEffect(() => {
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const el = e.target as HTMLElement;
+          const d = parseFloat(el.style.transitionDelay || '0') * 1000;
+          setTimeout(() => el.classList.add('visible'), d);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -50px 0px' });
 
-    requestAnimationFrame(raf)
+    const t = setTimeout(() => {
+      document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+    }, 100);
 
-    return () => {
-      lenis.destroy()
-    }
-  }, [])
+    return () => { clearTimeout(t); obs.disconnect(); };
+  }, []);
 
   return (
-    <div className="relative min-h-screen bg-[#030712] text-slate-100 overflow-x-hidden selection:bg-cyan-500/30 selection:text-white">
-      {/* Ambient Radial Glow Spotlights */}
-      <div 
-        className="fixed inset-0 pointer-events-none z-0" 
-        style={{
-          background: `
-            radial-gradient(circle at 10% 20%, rgba(6, 182, 212, 0.08) 0%, transparent 40%),
-            radial-gradient(circle at 80% 60%, rgba(139, 92, 246, 0.07) 0%, transparent 45%)
-          `
-        }} 
-      />
-
-      {/* Faint Dot Matrix Grid Overlay */}
-      <div className="fixed inset-0 bg-dot-grid z-0 pointer-events-none opacity-60" />
-
-      {/* Particle Background */}
-      <ParticleGrid />
-
-      {/* Main Layout Layer */}
-      <div className="relative z-10">
-        <Navbar />
-        
-        <main>
-          <Hero />
-          
-          <section className="relative">
-            <Skills />
-          </section>
-          
-          <section className="relative">
-            <Experience />
-          </section>
-          
-          <section className="relative">
-            <Projects />
-          </section>
-          
-          <section className="relative">
-            <Education />
-          </section>
-          
-          <section className="relative">
-            <Contact />
-          </section>
-        </main>
-      </div>
-    </div>
-  )
+    <>
+      <div className="cursor-glow" ref={cursorRef} />
+      <Navbar />
+      <main className="bg-bg">
+        <Hero />
+        <MarqueeSection />
+        <Skills />
+        <Experience />
+        <Projects />
+        <Education />
+        <Contact />
+      </main>
+    </>
+  );
 }
-
-export default App
