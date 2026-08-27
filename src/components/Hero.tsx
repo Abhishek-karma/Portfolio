@@ -93,24 +93,42 @@ export default function Hero() {
         </p>
 
         {/* Stats */}
-        <div className="hero-stats flex items-center gap-8 mb-9">
-          <div className="flex flex-col gap-1">
-            <span className="text-[26px] font-bold text-ink tracking-[-0.03em] leading-none">{modules}+</span>
-            <span className="text-[11px] text-muted font-mono uppercase tracking-wide">Modules shipped</span>
-          </div>
-          <div className="w-px h-9 bg-border" />
-          <div className="flex flex-col gap-1">
-            <span className="text-[26px] font-bold text-ink tracking-[-0.03em] leading-none">
-              {(uptime / 10).toFixed(1)}%
+        <div className="hero-stats flex items-center gap-6 mb-9">
+          {/* Modules — static, no counter needed */}
+          <div className="flex flex-col gap-1 min-w-[48px]">
+            <span className="text-[26px] font-bold text-ink tracking-[-0.03em] leading-none tabular-nums">
+              7+
             </span>
-            <span className="text-[11px] text-muted font-mono uppercase tracking-wide">Uptime SLA</span>
+            <span className="text-[11px] text-muted font-mono uppercase tracking-wide whitespace-nowrap">
+              Modules shipped
+            </span>
           </div>
-          <div className="w-px h-9 bg-border" />
-          <div className="flex flex-col gap-1">
-            <span className="text-[26px] font-bold text-ink tracking-[-0.03em] leading-none">&lt;1ms</span>
-            <span className="text-[11px] text-muted font-mono uppercase tracking-wide">Cache response</span>
+
+          <div className="w-px h-9 bg-border shrink-0" />
+
+          {/* Uptime — animated, fixed width prevents jitter */}
+          <div className="flex flex-col gap-1 min-w-[64px]">
+            <span className="text-[26px] font-bold text-ink tracking-[-0.03em] leading-none tabular-nums">
+              {started ? `${(uptime / 10).toFixed(1)}%` : '0.0%'}
+            </span>
+            <span className="text-[11px] text-muted font-mono uppercase tracking-wide whitespace-nowrap">
+              Uptime SLA
+            </span>
+          </div>
+
+          <div className="w-px h-9 bg-border shrink-0" />
+
+          {/* Cache — static */}
+          <div className="flex flex-col gap-1 min-w-[48px]">
+            <span className="text-[26px] font-bold text-ink tracking-[-0.03em] leading-none tabular-nums">
+              &lt;1ms
+            </span>
+            <span className="text-[11px] text-muted font-mono uppercase tracking-wide whitespace-nowrap">
+              Cache response
+            </span>
           </div>
         </div>
+
 
         {/* CTA buttons */}
         <div className="hero-actions flex gap-4 flex-wrap">
@@ -142,8 +160,8 @@ export default function Hero() {
               <div className="text-[11px] text-muted font-mono">Real-time monitoring</div>
             </div>
           </div>
-          <div className="text-[28px] font-bold text-ink mb-1">
-            {(uptime / 10).toFixed(1)}%
+          <div className="text-[28px] font-bold text-ink mb-1 tabular-nums min-w-[80px]">
+            {started ? `${(uptime / 10).toFixed(1)}%` : '0.0%'}
           </div>
           <div className="text-[12px] text-muted mb-3">Uptime across all services</div>
           <div className="flex items-end gap-1 h-10">
