@@ -53,7 +53,7 @@ const GEMINI_URL =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent';
 
 async function askGemini(message: string, history: Message[]): Promise<string> {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY as string | undefined;
+  const apiKey = import.meta.env.GEMINI_API_KEY as string | undefined;
 
   console.log('[ChatWidget] API key present:', !!apiKey);
   console.log('[ChatWidget] Calling:', GEMINI_URL);
