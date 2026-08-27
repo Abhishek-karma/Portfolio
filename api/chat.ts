@@ -1,0 +1,128 @@
+// Vercel Edge Function — /api/chat
+// Proxies to Gemini API, keeps your key server-side only
+export const config = { runtime: 'edge' };
+
+const SYSTEM_PROMPT = `You are an AI assistant embedded in Abhishek Vishwakarma's personal portfolio website.
+Your ONLY job is to answer questions about Abhishek professionally and helpfully.
+Keep answers concise (2-4 sentences max) unless a detailed answer is clearly needed.
+If asked something completely unrelated to Abhishek or his work, politely redirect.
+
+=== ABOUT ABHISHEK ===
+Name: Abhishek Vishwakarma
+Role: Junior Software Developer (Full Stack & Cloud Engineer)
+Company: PixelMind Technology, Mumbai (Sep 2025 – Present)
+Email: abhikarma.work@gmail.com
+Phone: +91 99673 26518
+GitHub: https://github.com/Abhishek-karma
+LinkedIn: https://linkedin.com/in/abhishek-vishwakarma
+Status: Open to new opportunities
+
+=== EDUCATION ===
+- B.Sc. Information Technology, Patkar Varde College, Mumbai University | CGPA: 9.02 | Class of 2024
+
+=== TECH STACK ===
+Backend: C# .NET 6+, CQRS / MediatR, Azure Service Bus, Azure Functions, SignalR, REST APIs, Node.js/Express, Microservices
+Frontend: Angular 15+, React, TypeScript, RxJS, DevExtreme, PrimeNG, Tailwind CSS
+Data: PostgreSQL, Redis Cache, Entity Framework Core, Dapper, MongoDB, Azure Key Vault
+DevOps: Azure DevOps, CI/CD Pipelines, Git/GitHub, Azure Cloud, SendGrid
+
+=== CURRENT ROLE — PixelMind Technology (Sep 2025 – Present) ===
+Built 7 production-grade enterprise modules with 99.9% uptime serving multi-tenant clients.
+Key projects:
+1. Distributed Notification Pipeline — CQRS (MediatR) + Azure Service Bus + SignalR + SendGrid for multi-tenant real-time streaming with WebSocket recovery
+2. Healthcare Claim Validation Engine — HIPAA-compliant, Azure Key Vault for PHI security, Redis caching (<1ms), PostgreSQL pipelines with RBAC
+3. Network & SSL Lifecycle Monitor — Azure Timer Functions, exponential backoff, Angular 15+ real-time dashboard
+4. WYSIWYG Email Template Builder — DevExtreme + Quill.js, Azure Blob Storage, multi-language versioning
+
+=== INTERNSHIPS ===
+- Software Development Intern, PixelMind Technology (Mar–Sep 2025): .NET Core microservices, Azure Key Vault, Redis (60% load reduction)
+- Full Stack Web Developer Intern, Unified Mentor (Jan–Mar 2025): MERN stack, React, MongoDB
+
+=== CERTIFICATIONS ===
+- MERN Stack Development — Unified Mentor (2025)
+- Citi ICG Technology Software Development — Citi/Forage (2025)
+- Tata Cybersecurity Analyst — Tata/Forage (2023)
+- Robotic Process Automation (RPA) — Automation Certification (2023)
+
+=== AVAILABILITY ===
+Abhishek is actively open to full-stack software development roles, cloud architecture positions, and microservices engineering opportunities.
+Best contact: abhikarma.work@gmail.com or GitHub.`;
+
+export default async function handler(req: Request) {
+  if (req.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+  }
+
+  // CORS headers for local dev
+  const headers = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+  };
+
+  try {
+    const { message, history = [] } = await req.json() as { message: string; history: { role: string; text: string }[] };
+
+    if (!message?.trim()) {
+      return new Response(JSON.stringify({ reply: 'Please ask me something!' }), { headers });
+    }
+
+    const apiKey = (process.env as Record<string, string>).GEMINI_API_KEY;
+    if (!apiKey) {
+      return new Response(JSON.stringify({ reply: 'AI assistant is not configured yet.' }), { headers });
+    }
+
+    // Build conversation history for context
+    const contents = [
+      // Seed with context from history (last 6 messages)
+      ...history.slice(-6).map((m: { role: string; text: string }) => ({
+        role: m.role === 'user' ? 'user' : 'model',
+        parts: [{ text: m.text }],
+      })),
+      { role: 'user', parts: [{ text: message }] },
+    ];
+
+    const geminiRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents,
+          generationConfig: {
+            maxOutputTokens: 350,
+            temperature: 0.65,
+            topP: 0.9,
+          },
+          safetySettings: [
+            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+          ],
+        }),
+      }
+    );
+
+    const data = await geminiRes.json() as {
+      candidates?: { content?: { parts?: { text?: string }[] } }[];
+      error?: { message?: string };
+    };
+
+    if (data.error) {
+      console.error('Gemini error:', data.error);
+      return new Response(
+        JSON.stringify({ reply: "I'm having trouble connecting right now. Please email abhikarma.work@gmail.com directly." }),
+        { headers }
+      );
+    }
+
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text
+      ?? "I couldn't generate a response. Please try again.";
+
+    return new Response(JSON.stringify({ reply }), { headers });
+  } catch (err) {
+    console.error('Chat API error:', err);
+    return new Response(
+      JSON.stringify({ reply: "Something went wrong. Please reach out at abhikarma.work@gmail.com" }),
+      { headers, status: 500 }
+    );
+  }
+}

@@ -291,9 +291,9 @@ body {
   transition: transform 0.6s var(--transition);
   opacity: 0; animation: floatIn 1s var(--transition) forwards;
 }
-.floating-card:nth-child(1) { top: 0; left: 20px; width: 280px; animation-delay: 0.3s; z-index: 1; }
-.floating-card:nth-child(2) { top: 160px; right: 0; width: 240px; animation-delay: 0.5s; z-index: 3; }
-.floating-card:nth-child(3) { bottom: 40px; left: 40px; width: 260px; animation-delay: 0.7s; z-index: 2; }
+.floating-card:nth-child(1) { top: 0;    left: 10px;  width: 260px; z-index:1; animation: floatIn 1s cubic-bezier(.22,1,.36,1) 0.3s forwards, cardBob 5s ease-in-out 1.5s infinite; }
+.floating-card:nth-child(2) { top: 145px; right: 10px; width: 225px; z-index:3; animation: floatIn 1s cubic-bezier(.22,1,.36,1) 0.5s forwards, cardBob 5s ease-in-out 2.2s infinite; }
+.floating-card:nth-child(3) { top: 300px; left: 30px;  width: 245px; z-index:2; animation: floatIn 1s cubic-bezier(.22,1,.36,1) 0.7s forwards, cardBob 5s ease-in-out 3s   infinite; }
 .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
 .card-icon {
   width: 36px; height: 36px; border-radius: var(--radius-sm);

@@ -149,7 +149,9 @@ export default function Hero() {
 
       {/* ── RIGHT: Floating Cards ── */}
       <div ref={visualRef}
-        className="flex-1 relative w-full max-w-[520px] h-[480px] lg:h-[500px] perspective-[1000px]">
+        className="flex-1 relative w-full max-w-[520px] h-[480px] lg:h-[520px]
+                   overflow-hidden lg:overflow-visible"
+        style={{ isolation: 'isolate' }}>
 
         {/* Card 1 — System Load */}
         <div className="floating-card">
