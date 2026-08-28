@@ -15,7 +15,7 @@ Company: PixelMind Technology, Mumbai (Sep 2025 – Present)
 Email: abhikarma.work@gmail.com
 Phone: +91 99673 26518
 GitHub: https://github.com/Abhishek-karma
-LinkedIn: https://linkedin.com/in/abhishek-vishwakarma
+LinkedIn: https://www.linkedin.com/in/abhikarma
 Status: Open to new opportunities
 
 === EDUCATION ===

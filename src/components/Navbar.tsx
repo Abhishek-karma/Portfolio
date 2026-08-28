@@ -54,7 +54,7 @@ export default function Navbar() {
 
         <div className="nav-actions">
           <a href="https://github.com/Abhishek-karma" target="_blank" rel="noopener noreferrer" className="nav-social inline-flex items-center justify-center" aria-label="GitHub"><GithubIcon size={18} /></a>
-          <a href="https://linkedin.com/in/abhikarma" target="_blank" rel="noopener noreferrer" className="nav-social inline-flex items-center justify-center" aria-label="LinkedIn"><LinkedinIcon size={18} /></a>
+          <a href="https://www.linkedin.com/in/abhikarma" target="_blank" rel="noopener noreferrer" className="nav-social inline-flex items-center justify-center" aria-label="LinkedIn"><LinkedinIcon size={18} /></a>
           <a href="/resume.pdf" download className="nav-resume inline-flex items-center gap-1.5">Resume <Download size={14} /></a>
         </div>
 
@@ -76,7 +76,7 @@ export default function Navbar() {
               <a href="/resume.pdf" download className="nav-resume" style={{ width: '100%', textAlign: 'center', display: 'block' }}>Download Resume</a>
               <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 12 }}>
                 <a href="https://github.com/Abhishek-karma" target="_blank" rel="noopener noreferrer" className="nav-social inline-flex items-center justify-center" aria-label="GitHub"><GithubIcon size={20} /></a>
-                <a href="https://linkedin.com/in/abhikarma" target="_blank" rel="noopener noreferrer" className="nav-social inline-flex items-center justify-center" aria-label="LinkedIn"><LinkedinIcon size={20} /></a>
+                <a href="https://www.linkedin.com/in/abhikarma" target="_blank" rel="noopener noreferrer" className="nav-social inline-flex items-center justify-center" aria-label="LinkedIn"><LinkedinIcon size={20} /></a>
               </div>
             </div>
           </div>

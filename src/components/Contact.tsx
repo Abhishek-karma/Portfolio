@@ -43,7 +43,7 @@ export default function Contact() {
                          transition-all duration-300 hover:bg-accent hover:border-accent hover:-translate-y-0.5">
               <Download size={17} strokeWidth={1.9} className="shrink-0" /> Download Resume
             </a>
-            <a href="https://linkedin.com/in/abhikarma" target="_blank" rel="noopener noreferrer"
+            <a href="https://www.linkedin.com/in/abhikarma" target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-2.5 px-7 py-4 rounded-[14px] border-[1.5px]
                          border-bg/15 text-bg text-sm font-semibold no-underline
                          transition-all duration-300 hover:bg-accent hover:border-accent hover:-translate-y-0.5">
