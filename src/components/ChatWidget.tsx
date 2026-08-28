@@ -12,90 +12,33 @@ const SUGGESTIONS = [
   'What are his certifications?',
 ];
 
-const SYSTEM_PROMPT = `You are an AI assistant embedded in Abhishek Vishwakarma's personal portfolio website.
-Answer questions about Abhishek professionally and concisely (2-4 sentences). If asked something unrelated to Abhishek or tech, politely redirect.
-
-=== ABOUT ABHISHEK ===
-Name: Abhishek Vishwakarma
-Role: Junior Software Developer (Full Stack & Cloud Engineer)
-Company: PixelMind Technology, Mumbai (Sep 2025 – Present)
-Email: abhikarma.work@gmail.com | Phone: +91 99673 26518
-GitHub: https://github.com/Abhishek-karma | LinkedIn: https://linkedin.com/in/abhishek-vishwakarma
-Status: Open to new opportunities
-
-=== EDUCATION ===
-B.Sc. Information Technology — Patkar Varde College, Mumbai University | CGPA: 9.02 | Class of 2024
-
-=== TECH STACK ===
-Backend: C# .NET 6+, CQRS/MediatR, Azure Service Bus, Azure Functions, SignalR, REST APIs, Node.js/Express, Microservices
-Frontend: Angular 15+, React, TypeScript, RxJS, DevExtreme, PrimeNG, Tailwind CSS
-Data: PostgreSQL, Redis Cache, EF Core, Dapper, MongoDB, Azure Key Vault
-DevOps: Azure DevOps, CI/CD Pipelines, Git/GitHub, SendGrid
-
-=== EXPERIENCE — PixelMind Technology (Sep 2025 – Present) ===
-Built 7 production-grade enterprise modules with 99.9% uptime.
-1. Distributed Notification Pipeline — CQRS + Azure Service Bus + SignalR + SendGrid
-2. Healthcare Claim Validation Engine — HIPAA-compliant, Azure Key Vault, Redis <1ms, PostgreSQL
-3. Network & SSL Lifecycle Monitor — Azure Timer Functions, Angular 15+ dashboard
-4. WYSIWYG Email Template Builder — DevExtreme + Quill.js, Azure Blob Storage
-
-=== EARLIER ===
-- Software Dev Intern, PixelMind (Mar–Sep 2025): .NET Core, Azure Key Vault, Redis (60% load reduction)
-- Full Stack Intern, Unified Mentor (Jan–Mar 2025): MERN stack
-
-=== CERTIFICATIONS ===
-- MERN Stack Development (Unified Mentor, 2025)
-- Citi ICG Technology Software Development (Forage, 2025)
-- Tata Cybersecurity Analyst (Forage, 2023)
-- Robotic Process Automation (2023)`;
-
-const GEMINI_URL =
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent';
-
 async function askGemini(message: string, history: Message[]): Promise<string> {
-  const apiKey = import.meta.env.GEMINI_API_KEY as string | undefined;
+  console.log('[ChatWidget] Calling /api/chat');
 
-  console.log('[ChatWidget] API key present:', !!apiKey);
-  console.log('[ChatWidget] Calling:', GEMINI_URL);
-
-  if (!apiKey) {
-    return "⚙️ AI assistant needs setup — contact abhikarma.work@gmail.com";
-  }
-
-  const contents = [
-    ...history.slice(-6).map(m => ({
-      role: m.role === 'user' ? 'user' : 'model',
-      parts: [{ text: m.text }],
-    })),
-    { role: 'user', parts: [{ text: message }] },
-  ];
-
-  const res = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
+  const res = await fetch('/api/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-      contents,
-      generationConfig: { maxOutputTokens: 1024, temperature: 0.65, topP: 0.9 },
+      message,
+      history: history.slice(-6),
     }),
   });
 
   console.log('[ChatWidget] Response status:', res.status);
 
   if (!res.ok) {
-    const err = await res.json().catch(() => ({})) as { error?: { message?: string } };
-    console.error('[ChatWidget] Gemini error:', err);
-    return `Error ${res.status}: ${err?.error?.message ?? 'Unknown error'}. Try emailing abhikarma.work@gmail.com`;
+    const err = await res.json().catch(() => ({})) as { error?: string; reply?: string };
+    console.error('[ChatWidget] API error:', res.status, err);
+    return `Error ${res.status}: ${err?.reply ?? err?.error ?? 'Unknown error'}. Try emailing abhikarma.work@gmail.com`;
   }
 
-  const data = await res.json() as {
-    candidates?: { content?: { parts?: { text?: string }[] } }[];
-  };
+  const data = await res.json() as { reply?: string; error?: string };
 
-  return (
-    data.candidates?.[0]?.content?.parts?.[0]?.text ??
-    "Couldn't generate a response. Please try again."
-  );
+  if (data.error) {
+    return `Error: ${data.error}. Try emailing abhikarma.work@gmail.com`;
+  }
+
+  return data.reply ?? "Couldn't generate a response. Please try again.";
 }
 
 export default function ChatWidget() {

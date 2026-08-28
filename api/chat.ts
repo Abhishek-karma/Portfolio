@@ -1,6 +1,6 @@
-// Vercel Edge Function — /api/chat
+// Vercel Serverless Function — /api/chat
 // Proxies to Gemini API, keeps your key server-side only
-export const config = { runtime: 'edge' };
+// Uses default Node.js runtime (no Edge) so process.env.GEMINI_API_KEY works
 
 const SYSTEM_PROMPT = `You are an AI assistant embedded in Abhishek Vishwakarma's personal portfolio website.
 Your ONLY job is to answer questions about Abhishek professionally and helpfully.
@@ -48,32 +48,50 @@ Key projects:
 Abhishek is actively open to full-stack software development roles, cloud architecture positions, and microservices engineering opportunities.
 Best contact: abhikarma.work@gmail.com or GitHub.`;
 
-export default async function handler(req: Request) {
-  if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+import type { IncomingMessage, ServerResponse } from 'http';
+
+export default async function handler(req: IncomingMessage, res: ServerResponse) {
+  // CORS headers for local dev
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    res.writeHead(200);
+    return res.end();
   }
 
-  // CORS headers for local dev
-  const headers = {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-  };
+  if (req.method !== 'POST') {
+    res.writeHead(405, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({ error: 'Method not allowed' }));
+  }
 
   try {
-    const { message, history = [] } = await req.json() as { message: string; history: { role: string; text: string }[] };
+    // Read and parse the request body
+    const chunks: Buffer[] = [];
+    for await (const chunk of req) {
+      chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
+    }
+    const body = JSON.parse(Buffer.concat(chunks).toString());
+    const { message, history = [] } = body as {
+      message?: string;
+      history?: { role: string; text: string }[];
+    };
 
     if (!message?.trim()) {
-      return new Response(JSON.stringify({ reply: 'Please ask me something!' }), { headers });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ reply: 'Please ask me something!' }));
     }
 
-    const apiKey = (process.env as Record<string, string>).GEMINI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return new Response(JSON.stringify({ reply: 'AI assistant is not configured yet.' }), { headers });
+      console.error('[api/chat] GEMINI_API_KEY environment variable is not set');
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ reply: 'AI assistant is not configured yet.' }));
     }
 
     // Build conversation history for context
     const contents = [
-      // Seed with context from history (last 6 messages)
       ...history.slice(-6).map((m: { role: string; text: string }) => ({
         role: m.role === 'user' ? 'user' : 'model',
         parts: [{ text: m.text }],
@@ -82,7 +100,7 @@ export default async function handler(req: Request) {
     ];
 
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -107,22 +125,23 @@ export default async function handler(req: Request) {
     };
 
     if (data.error) {
-      console.error('Gemini error:', data.error);
-      return new Response(
-        JSON.stringify({ reply: "I'm having trouble connecting right now. Please email abhikarma.work@gmail.com directly." }),
-        { headers }
-      );
+      console.error('[api/chat] Gemini API error:', data.error.message ?? 'Unknown error');
+      res.writeHead(502, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({
+        reply: "I'm having trouble connecting right now. Please email abhikarma.work@gmail.com directly.",
+      }));
     }
 
     const reply = data.candidates?.[0]?.content?.parts?.[0]?.text
       ?? "I couldn't generate a response. Please try again.";
 
-    return new Response(JSON.stringify({ reply }), { headers });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({ reply }));
   } catch (err) {
-    console.error('Chat API error:', err);
-    return new Response(
-      JSON.stringify({ reply: "Something went wrong. Please reach out at abhikarma.work@gmail.com" }),
-      { headers, status: 500 }
-    );
+    console.error('[api/chat] Unexpected error:', err instanceof Error ? err.message : err);
+    res.writeHead(500, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({
+      reply: "Something went wrong. Please reach out at abhikarma.work@gmail.com",
+    }));
   }
 }
