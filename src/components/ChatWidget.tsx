@@ -41,6 +41,80 @@ async function askGemini(message: string, history: Message[]): Promise<string> {
   return data.reply ?? "Couldn't generate a response. Please try again.";
 }
 
+// Lightweight clean markdown renderer for chat bubbles
+function FormattedText({ text }: { text: string }) {
+  // Parse lines into paragraphs and list items
+  const lines = text.split('\n');
+
+  const renderInline = (str: string) => {
+    // Split by markdown elements: **bold**, `code`, [link](url)
+    const parts = str.split(/(\*\*.*?\*\*|`.*?`|\[.*?\]\(.*?\))/g);
+    return parts.map((part, index) => {
+      if (part.startsWith('**') && part.endsWith('**') && part.length >= 4) {
+        return (
+          <strong key={index} className="font-semibold text-ink">
+            {part.slice(2, -2)}
+          </strong>
+        );
+      }
+      if (part.startsWith('`') && part.endsWith('`') && part.length >= 2) {
+        return (
+          <code key={index} className="px-1.5 py-0.5 bg-border-lt rounded text-[11px] font-mono text-accent">
+            {part.slice(1, -1)}
+          </code>
+        );
+      }
+      const linkMatch = part.match(/^\[(.*?)\]\((.*?)\)$/);
+      if (linkMatch) {
+        return (
+          <a key={index} href={linkMatch[2]} target="_blank" rel="noopener noreferrer" className="text-accent underline font-medium">
+            {linkMatch[1]}
+          </a>
+        );
+      }
+      return part;
+    });
+  };
+
+  return (
+    <div className="space-y-1.5 text-[13px] leading-relaxed">
+      {lines.map((line, idx) => {
+        const trimmed = line.trim();
+        if (!trimmed) {
+          return <div key={idx} className="h-1" />;
+        }
+
+        // Bullet point: * text or - text or • text
+        if (trimmed.startsWith('* ') || trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
+          const content = trimmed.replace(/^[\*\-•]\s+/, '');
+          return (
+            <div key={idx} className="flex items-start gap-2 pl-1 my-0.5">
+              <span className="text-accent text-[12px] leading-tight select-none mt-0.5 font-bold">•</span>
+              <span className="flex-1">{renderInline(content)}</span>
+            </div>
+          );
+        }
+
+        // Numbered list: 1. text
+        const numMatch = trimmed.match(/^(\d+)\.\s+(.*)$/);
+        if (numMatch) {
+          return (
+            <div key={idx} className="flex items-start gap-2 pl-1 my-0.5">
+              <span className="font-mono text-[11px] text-accent font-semibold min-w-[14px] leading-tight select-none mt-0.5">
+                {numMatch[1]}.
+              </span>
+              <span className="flex-1">{renderInline(numMatch[2])}</span>
+            </div>
+          );
+        }
+
+        // Regular line
+        return <p key={idx} className="my-0.5">{renderInline(line)}</p>;
+      })}
+    </div>
+  );
+}
+
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
@@ -96,22 +170,22 @@ export default function ChatWidget() {
       {open && (
         <div
           className="fixed bottom-24 right-4 sm:right-6 z-[8000]
-                     w-[min(380px,calc(100vw-2rem))] bg-white border border-border
+                     w-[min(400px,calc(100vw-2rem))] bg-white border border-border
                      rounded-[24px] shadow-[0_24px_80px_rgba(0,0,0,0.16)]
-                     flex flex-col overflow-hidden"
-          style={{ height: 'min(520px,calc(100dvh - 120px))' }}>
+                     flex flex-col overflow-hidden animate-[modalIn_0.25s_cubic-bezier(.22,1,.36,1)]"
+          style={{ height: 'min(540px,calc(100dvh - 120px))' }}>
 
           {/* Header */}
           <div className="flex items-center gap-3 px-5 py-4 border-b border-border bg-surface shrink-0">
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-accent to-[#e07020]
-                            flex items-center justify-center text-white text-xs font-bold shrink-0">
+                            flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-sm">
               AV
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-sm font-semibold text-ink">Ask about Abhishek</div>
               <div className="flex items-center gap-1.5 text-[11px] text-ok font-mono">
                 <span className="w-1.5 h-1.5 rounded-full bg-ok animate-pulse inline-block" />
-                AI powered · online
+                AI powered · fast response
               </div>
             </div>
             <button onClick={() => setOpen(false)}
@@ -127,15 +201,15 @@ export default function ChatWidget() {
               <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 {msg.role === 'bot' && (
                   <div className="w-6 h-6 rounded-full bg-accent-lt flex items-center justify-center
-                                  text-[10px] font-bold text-accent shrink-0 mt-0.5 mr-2">
+                                  text-[10px] font-bold text-accent shrink-0 mt-1 mr-2">
                     AV
                   </div>
                 )}
-                <div className={`max-w-[82%] px-3.5 py-2.5 rounded-[16px] text-[13px] leading-relaxed
+                <div className={`max-w-[85%] px-4 py-2.5 rounded-[16px] text-[13px] leading-relaxed shadow-sm
                                  ${msg.role === 'user'
                                    ? 'bg-ink text-bg rounded-br-[4px]'
                                    : 'bg-warm border border-border-lt text-ink rounded-bl-[4px]'}`}>
-                  {msg.text}
+                  {msg.role === 'user' ? msg.text : <FormattedText text={msg.text} />}
                 </div>
               </div>
             ))}

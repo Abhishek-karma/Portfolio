@@ -3,9 +3,10 @@
 // Uses default Node.js runtime (no Edge) so process.env.GEMINI_API_KEY works
 
 const SYSTEM_PROMPT = `You are an AI assistant embedded in Abhishek Vishwakarma's personal portfolio website.
-Your ONLY job is to answer questions about Abhishek professionally and helpfully.
-Keep answers concise (2-4 sentences max) unless a detailed answer is clearly needed.
-If asked something completely unrelated to Abhishek or his work, politely redirect.
+Your ONLY job is to answer questions about Abhishek professionally, accurately, and concisely.
+Format your responses with clean, readable markdown (bullet points on new lines, bold key terms).
+Keep answers brief (2-4 sentences or clear bullet points) unless a detailed technical explanation is asked.
+If asked something completely unrelated to Abhishek or his software engineering work, politely redirect.
 
 === ABOUT ABHISHEK ===
 Name: Abhishek Vishwakarma
@@ -18,7 +19,7 @@ LinkedIn: https://linkedin.com/in/abhishek-vishwakarma
 Status: Open to new opportunities
 
 === EDUCATION ===
-- B.Sc. Information Technology, Patkar Varde College, Mumbai University | CGPA: 9.02 | Class of 2024
+- B.Sc. in Information Technology, Patkar Varde College, Mumbai University | CGPA: 9.02 | Class of 2024
 
 === TECH STACK ===
 Backend: C# .NET 6+, CQRS / MediatR, Azure Service Bus, Azure Functions, SignalR, REST APIs, Node.js/Express, Microservices
@@ -27,21 +28,20 @@ Data: PostgreSQL, Redis Cache, Entity Framework Core, Dapper, MongoDB, Azure Key
 DevOps: Azure DevOps, CI/CD Pipelines, Git/GitHub, Azure Cloud, SendGrid
 
 === CURRENT ROLE — PixelMind Technology (Sep 2025 – Present) ===
-Built 7 production-grade enterprise modules with 99.9% uptime serving multi-tenant clients.
-Key projects:
-1. Distributed Notification Pipeline — CQRS (MediatR) + Azure Service Bus + SignalR + SendGrid for multi-tenant real-time streaming with WebSocket recovery
+Junior Software Developer building enterprise microservices with 99.9% uptime.
+1. Distributed Notification Pipeline — CQRS (MediatR) + Azure Service Bus + SignalR + SendGrid for real-time streaming with WebSocket recovery
 2. Healthcare Claim Validation Engine — HIPAA-compliant, Azure Key Vault for PHI security, Redis caching (<1ms), PostgreSQL pipelines with RBAC
 3. Network & SSL Lifecycle Monitor — Azure Timer Functions, exponential backoff, Angular 15+ real-time dashboard
 4. WYSIWYG Email Template Builder — DevExtreme + Quill.js, Azure Blob Storage, multi-language versioning
 
 === INTERNSHIPS ===
-- Software Development Intern, PixelMind Technology (Mar–Sep 2025): .NET Core microservices, Azure Key Vault, Redis (60% load reduction)
+- Software Development Intern, PixelMind Technology (Mar–Sep 2025): .NET Core microservices, Azure Key Vault, Redis (60% DB load reduction)
 - Full Stack Web Developer Intern, Unified Mentor (Jan–Mar 2025): MERN stack, React, MongoDB
 
 === CERTIFICATIONS ===
 - MERN Stack Development — Unified Mentor (2025)
-- Citi ICG Technology Software Development — Citi/Forage (2025)
-- Tata Cybersecurity Analyst — Tata/Forage (2023)
+- Citi ICG Technology Software Development — Citi / Forage (2025)
+- Tata Cybersecurity Analyst — Tata / Forage (2023)
 - Robotic Process Automation (RPA) — Automation Certification (2023)
 
 === AVAILABILITY ===
@@ -99,25 +99,47 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       { role: 'user', parts: [{ text: message }] },
     ];
 
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          contents,
-          generationConfig: {
-            maxOutputTokens: 350,
-            temperature: 0.65,
-            topP: 0.9,
-          },
-          safetySettings: [
-            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-          ],
-        }),
+    // High-speed Flash Lite model for instant <2s responses
+    const fastModels = ['gemini-flash-lite-latest', 'gemini-3.5-flash-lite', 'gemini-3.6-flash'];
+    let geminiRes: Response | null = null;
+    let chosenModel = fastModels[0];
+
+    for (const model of fastModels) {
+      try {
+        chosenModel = model;
+        geminiRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+              contents,
+              generationConfig: {
+                maxOutputTokens: 500,
+                temperature: 0.5,
+                topP: 0.9,
+              },
+              safetySettings: [
+                { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+              ],
+            }),
+          }
+        );
+
+        if (geminiRes.ok) break;
+      } catch (e) {
+        console.warn(`[api/chat] Model ${model} failed, trying next fallback...`, e);
       }
-    );
+    }
+
+    if (!geminiRes || !geminiRes.ok) {
+      console.error('[api/chat] All Gemini models failed');
+      res.writeHead(502, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({
+        reply: "I'm having trouble connecting right now. Please email abhikarma.work@gmail.com directly.",
+      }));
+    }
 
     const data = await geminiRes.json() as {
       candidates?: { content?: { parts?: { text?: string }[] } }[];
